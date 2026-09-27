@@ -1,0 +1,13 @@
+You will need to email me when you have changed your survey for me to post on Piazza.
+
+Disclaimer: in the process of constructing feedback, I recorded my audio and got AI to rephrase my feedback in a concise, clear manner so that I can mark faster + you get more detailed feedback. I did not run any of the assignments through AI.
+
+Rating scales
+Your questionnaire uses a 1 to 5 scale from strongly agree to strongly disagree. Please add "slightly agree" and "slightly disagree" to make it a 1 to 7 scale. Much of your proposed analysis treats these responses as quantitative data, and more points on the scale give you more variation and better results.
+
+Commute time
+Commute time is not a sensitive question, so a range does not protect anyone. Please ask students to enter their commute time as a number, in minutes or hours, whichever you prefer. Ranges force you to use the midpoint of each interval in your analysis, and exact values give you more to work with.
+
+(-0.1 for how questionnaire questions were formatted)
+
+0.9/1
