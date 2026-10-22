@@ -1,6 +1,6 @@
 ---
 title: "STA304_survey"
-author: "Rasha, Jannah, Faridah & Mhichelle"
+author: "Rasha, Jannah, Faridah & Michelle"
 date: "2026-10-22"
 output: html_document
 ---
@@ -26,5 +26,8 @@ You can also embed plots, for example:
 ```{r pressure, echo=FALSE}
 plot(pressure)
 ```
+remotes::install_github("easystats/easystats")
+library(easystats)
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
