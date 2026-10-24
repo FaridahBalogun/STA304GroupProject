@@ -9,25 +9,354 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-remotes::install_github("easystats/easystats")
+## Computing Summary Statistics
+```{r}
+#| echo: false
+#| message: false
+library(tidyverse)
 library(easystats)
+library(knitr)
+
+df <- read.csv("Survey_Data_Set.csv")
+
+quant_items <- c("Year.of.Study", "Benefit.of.Visual.Learning", "Benefit.of.Hands.On.Learning", "Benefits.of.Auditory.Learning", "Preferred.Lecture.Format.Effectiveness", "Total.Commute.Time..Minutes.")
+
+datawizard::describe_distribution(df, quant_items, centrality = c("mean", "median")) |>
+  select(-Skewness, -Kurtosis, -n_Missing, -MAD) |>
+  print_md()
+m1_y = mean(df$Year.of.Study)
+m2_y = median(df$Year.of.Study)
+m3_y = sd(df$Year.of.Study)
+m4_y = IQR(df$Year.of.Study)
+
+m1_V = mean(df$Benefit.of.Visual.Learning)
+m2_V = median(df$Benefit.of.Visual.Learning)
+m3_V = sd(df$Benefit.of.Visual.Learning)
+m4_V = IQR(df$Benefit.of.Visual.Learning)
+
+m1_H = mean(df$Benefit.of.Hands.On.Learning)
+m2_H = median(df$Benefit.of.Hands.On.Learning)
+m3_H = sd(df$Benefit.of.Hands.On.Learning)
+m4_H = IQR(df$Benefit.of.Hands.On.Learning)
+
+m1_A = mean(df$Benefits.of.Auditory.Learning)
+m2_A = median(df$Benefits.of.Auditory.Learning)
+m3_A = sd(df$Benefits.of.Auditory.Learning)
+m4_A = IQR(df$Benefits.of.Auditory.Learning)
+
+m1_E = mean(df$Preferred.Lecture.Format.Effectiveness)
+m2_E = median(df$Preferred.Lecture.Format.Effectiveness)
+m3_E= sd(df$Preferred.Lecture.Format.Effectiveness)
+m4_E = IQR(df$Preferred.Lecture.Format.Effectiveness)
+
+m1_T = mean(df$Total.Commute.Time..Minutes.)
+m2_T = median(df$Total.Commute.Time..Minutes.)
+m3_T= sd(df$Total.Commute.Time..Minutes.)
+m4_T = IQR(df$Total.Commute.Time..Minutes.)
 
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+summary_table = data.frame("Year of Study" = c(m1_y, m2_y, m3_y, m4_y),
+                           "Benefit.of.Visual.Learning" = c(m1_V, m2_V, m3_V, m4_V),
+                           "Benefit.of.Hands.On.Learning" = c(m1_H, m2_H, m3_H, m4_H),
+                           "Benefits.of.Auditory.Learning" = c(m1_A, m2_A, m3_A, m4_A),
+                   "Preferred.Lecture.Format.Effectiveness" = c(m1_E, m2_E, m3_E, m4_E),
+                   "Total.Commute.Time..Minutes." = c(m1_T, m2_T, m3_T, m4_T))
+
+kable(t(summary_table), 
+      col.names = c("Mean", "Median", "SD", "IQR"), 
+      caption = "Summary of Students' Preferences for Lecture Delivery Format",
+      align = "c")
+
+
+
+```
+**Discussion for Quantitative Analysis**
+
+We noticed that the mean for preferring visual & hands on learning are around the same
+value while the medians are the same. However, the mean for preferring Auditory 
+learning is significantly lower.
+
+Additionally, we found that the standard deviation for total commute time is 
+quite large.
+
+
+ **qualitative variable**
+
+`````{r}
+#| echo: false
+
+datawizard::data_tabulate(df, c("Preferred.Deliverly.Format", "Longer.Shorter.Commute.Time.Effect.on.Preferred.Lecture.Format")) |> print_md()
+
+delF_dist = table(df$Preferred.Deliverly.Format)
+
+ctime_dist = table(df$Longer.Shorter.Commute.Time.Effect.on.Preferred.Lecture.Format)
+
+
+delF_percent = prop.table(delF_dist) * 100
+ctime_percent = prop.table(ctime_dist) * 100
+
+
+delF_summary = rbind(
+  Count = as.numeric(delF_dist),
+  Percentage = as.numeric(delF_percent)
+)
+
+ctime_summary = rbind(
+  Count = as.numeric(ctime_dist),
+  Percentage = as.numeric(ctime_percent)
+)
+
+
+colnames(delF_summary) = names(delF_dist)
+colnames(ctime_summary) = names(ctime_dist)
+
+kable(delF_summary, caption = "Preferred Deliverly Format Responses")
+      
+kable(ctime_summary, caption = "Longer/Shorter Commute Time Effect on Preferred Lecture Format Responses")
+```
+**Discussion for the Qualitative Analysis**
+
+For the preferred Delivery format we noticed that a large proportion of respondents 
+prefer In-Person format.
+We also noticed that a larger amount of respondents will change their preferred delivery format if they had shorter commute times. However, a lot of respondents reported that
+their commute time would not affect their preferred delivery format.
+
+```{r}
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+
+# Import the CSV file
+data <- read.csv("Survey_Data_Set.csv")
+
+# Check the column names
+names(data)
+
+# Create commute groups
+data <- data %>%
+  mutate(
+    CommuteGroup = case_when(
+      Total.Commute.Time..Minutes. > 40 ~ "Longer Commute",
+      Total.Commute.Time..Minutes. < 40 ~ "Shorter Commute",
+      TRUE ~ NA_character_
+    )
+  )
+
+# Calculate proportions
+proportions <- data %>%
+  filter(
+    !is.na(CommuteGroup),
+    !is.na(Preferred.Deliverly.Format)
+  ) %>%
+  count(CommuteGroup, Preferred.Deliverly.Format) %>%
+  group_by(CommuteGroup) %>%
+  mutate(Proportion = n / sum(n)) %>%
+  ungroup()
+
+# Display the calculated proportions
+print(proportions)
+
+# Graph 1: Longer commutes
+plot_longer <- ggplot(
+  filter(proportions, CommuteGroup == "Longer Commute"),
+  aes(x = Preferred.Deliverly.Format, y = Proportion)
+) +
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Preferred Delivery Format: Longer Commutes",
+    x = "Preferred Delivery Format",
+    y = "Proportion"
+  ) +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 1)
+  ) +
+  theme_minimal()
+
+print(plot_longer)
+
+# Graph 2: Shorter commutes
+plot_shorter <- ggplot(
+  filter(proportions, CommuteGroup == "Shorter Commute"),
+  aes(x = Preferred.Deliverly.Format, y = Proportion)
+) +
+  geom_col(fill = "darkorange") +
+  labs(
+    title = "Preferred Delivery Format: Shorter Commutes",
+    x = "Preferred Delivery Format",
+    y = "Proportion"
+  ) +
+  scale_y_continuous(
+    labels = scales::percent,
+    limits = c(0, 1)
+  ) +
+  theme_minimal()
+
+print(plot_shorter)
+
+
+```
+**Discussion based on graph**
+After doing a comparison of proportion statistical test, We found that 
+respondents with longer (total commute time > Median) and 
+shorter (total commute time < Median) both prefer In-person lectures.
+
+```{r}
+#| fig-align: center
+#| fig-width: 8
+#| fig-height: 4
+#| fig-cap: >
+#| echo: false
+#| message: false
+
+#dependent = lecture format, Indep= learning styles
+#Visual learning Scatter plot
+ggplot(df, aes(x = Benefit.of.Visual.Learning, y = Preferred.Deliverly.Format)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggtitle("Scatterplot")
+
+#Hands on learning scatter plot
+ggplot(df, aes(x = Benefit.of.Hands.On.Learning, y = Preferred.Deliverly.Format)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggtitle("Scatterplot")
+
+#Auditory learning scatter plot
+ggplot(df, aes(x = Benefits.of.Auditory.Learning, y = Preferred.Deliverly.Format)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggtitle("Scatterplot")
+
+```
+**Comments on the linear Regression results**
+After conducting the linear regression analysis, we can conclude that it is not 
+an appropriate test for the data set because the y-axis (preferred delivery format)
+is non-numerical. 
+
+```{r}
+#| echo: false
+#| fig.width: 9
+#| fig.height: 6
+#| dpi: 300
+#| fig-cap: "Checking the model assumptions of linear regression using the performance package."
+library(tidyverse)
+library(performance)
+
+df <- read.csv("Survey_Data_Set.csv")
+
+df <- df %>%
+  mutate(
+    Benefit.of.Visual.Learning =
+      as.numeric(as.character(Benefit.of.Visual.Learning)),
+    Preferred.Deliverly.Format =
+      as.factor(Preferred.Deliverly.Format)
+  )
+
+# Fit the linear regression model
+model <- lm(
+  Benefit.of.Visual.Learning ~ Preferred.Deliverly.Format,
+  data = df
+)
+
+# View model results
+summary(model)
+
+# Check model assumptions
+performance::check_model(model)
+```
+
+```{r}
+library(tidyverse)
+library(performance)
+
+df <- read.csv("Survey_Data_Set.csv")
+
+
+df <- df %>%
+  mutate(
+    Benefit.of.Hands.On.Learning =
+      as.numeric(as.character(Benefit.of.Hands.On.Learning)),
+    Preferred.Deliverly.Format =
+      as.factor(Preferred.Deliverly.Format)
+  )
+
+# Fit the linear regression model
+model <- lm(
+  Benefit.of.Hands.On.Learning ~ Preferred.Deliverly.Format,
+  data = df
+)
+
+# View model results
+summary(model)
+
+# Check model assumptions
+performance::check_model(model)
+```
+
+
+```{r}
+library(tidyverse)
+library(performance)
+
+df <- read.csv("Survey_Data_Set.csv")
+
+
+df <- df %>%
+  mutate(
+    Benefits.of.Auditory.Learning =
+      as.numeric(as.character(Benefits.of.Auditory.Learning)),
+    Preferred.Deliverly.Format =
+      as.factor(Preferred.Deliverly.Format)
+  )
+
+# Fit the linear regression model
+model <- lm(
+  Benefits.of.Auditory.Learning ~ Preferred.Deliverly.Format,
+  data = df
+)
+
+# View model results
+summary(model)
+
+# Check model assumptions
+performance::check_model(model)
+```
+
+**Anova Table**
+```{r}
+library(tidyverse)
+
+anova_data <- df %>%
+  filter(
+    !is.na(Benefit.of.Visual.Learning),
+    !is.na(Preferred.Deliverly.Format)
+  ) %>%
+  mutate(
+    Preferred.Deliverly.Format =
+      factor(Preferred.Deliverly.Format)
+  )
+
+
+table(anova_data$Preferred.Deliverly.Format)
+
+# Calculate the average score for each lecture format
+anova_data %>%
+  group_by(Preferred.Deliverly.Format) %>%
+  summarise(
+    Sample_Size = n(),
+    Mean_Score = mean(Benefit.of.Visual.Learning),
+    SD = sd(Benefit.of.Visual.Learning)
+  )
+
+# Conduct one-way ANOVA
+anova_model <- aov(
+  Benefit.of.Visual.Learning ~ Preferred.Deliverly.Format,
+  data = anova_data
+)
+
+# Display ANOVA results
+summary(anova_model)
+```
