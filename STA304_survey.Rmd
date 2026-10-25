@@ -4,6 +4,7 @@ group: "Ctrl+Alt+Stat"
 author: "Rasha, Jannah, Faridah & Michelle"
 date: "2026-10-22"
 output: pdf_document
+geometry: margin=0.6in
 ---
 
 ```{r setup, include=FALSE}
@@ -25,52 +26,53 @@ knitr::opts_chunk$set(
 library(tidyverse)
 library(easystats)
 library(knitr)
+library(readxl)
 
-df <- read.csv("Survey_Data_Set.csv")
+df <- read_xlsx("Survey Data Set.xlsx") |> rename_with(trimws)
 
-quant_items <- c("Year.of.Study", "Benefit.of.Visual.Learning", "Benefit.of.Hands.On.Learning", "Benefits.of.Auditory.Learning", "Preferred.Lecture.Format.Effectiveness", "Total.Commute.Time..Minutes.")
+quant_items <- c("Year of Study", "Benefit of Visual Learning", "Benefit of Hands On Learning", "Benefits of Auditory Learning", "Preferred Lecture Format Effectiveness", "Total Commute Time (Minutes)")
 
 datawizard::describe_distribution(df, quant_items, centrality = c("mean", "median")) |>
   select(-Skewness, -Kurtosis, -n_Missing, -MAD) |>
   print_md()
-m1_y = mean(df$Year.of.Study)
-m2_y = median(df$Year.of.Study)
-m3_y = sd(df$Year.of.Study)
-m4_y = IQR(df$Year.of.Study)
+m1_y = mean(df$`Year of Study`)
+m2_y = median(df$`Year of Study`)
+m3_y = sd(df$`Year of Study`)
+m4_y = IQR(df$`Year of Study`)
 
-m1_V = mean(df$Benefit.of.Visual.Learning)
-m2_V = median(df$Benefit.of.Visual.Learning)
-m3_V = sd(df$Benefit.of.Visual.Learning)
-m4_V = IQR(df$Benefit.of.Visual.Learning)
+m1_V = mean(df$`Benefit of Visual Learning`)
+m2_V = median(df$`Benefit of Visual Learning`)
+m3_V = sd(df$`Benefit of Visual Learning`)
+m4_V = IQR(df$`Benefit of Visual Learning`)
 
-m1_H = mean(df$Benefit.of.Hands.On.Learning)
-m2_H = median(df$Benefit.of.Hands.On.Learning)
-m3_H = sd(df$Benefit.of.Hands.On.Learning)
-m4_H = IQR(df$Benefit.of.Hands.On.Learning)
+m1_H = mean(df$`Benefit of Hands On Learning`)
+m2_H = median(df$`Benefit of Hands On Learning`)
+m3_H = sd(df$`Benefit of Hands On Learning`)
+m4_H = IQR(df$`Benefit of Hands On Learning`)
 
-m1_A = mean(df$Benefits.of.Auditory.Learning)
-m2_A = median(df$Benefits.of.Auditory.Learning)
-m3_A = sd(df$Benefits.of.Auditory.Learning)
-m4_A = IQR(df$Benefits.of.Auditory.Learning)
+m1_A = mean(df$`Benefits of Auditory Learning`)
+m2_A = median(df$`Benefits of Auditory Learning`)
+m3_A = sd(df$`Benefits of Auditory Learning`)
+m4_A = IQR(df$`Benefits of Auditory Learning`)
 
-m1_E = mean(df$Preferred.Lecture.Format.Effectiveness)
-m2_E = median(df$Preferred.Lecture.Format.Effectiveness)
-m3_E= sd(df$Preferred.Lecture.Format.Effectiveness)
-m4_E = IQR(df$Preferred.Lecture.Format.Effectiveness)
+m1_E = mean(df$`Preferred Lecture Format Effectiveness`)
+m2_E = median(df$`Preferred Lecture Format Effectiveness`)
+m3_E= sd(df$`Preferred Lecture Format Effectiveness`)
+m4_E = IQR(df$`Preferred Lecture Format Effectiveness`)
 
-m1_T = mean(df$Total.Commute.Time..Minutes.)
-m2_T = median(df$Total.Commute.Time..Minutes.)
-m3_T= sd(df$Total.Commute.Time..Minutes.)
-m4_T = IQR(df$Total.Commute.Time..Minutes.)
+m1_T = mean(df$`Total Commute Time (Minutes)`)
+m2_T = median(df$`Total Commute Time (Minutes)`)
+m3_T= sd(df$`Total Commute Time (Minutes)`)
+m4_T = IQR(df$`Total Commute Time (Minutes)`)
 
 
 
-summary_table = data.frame("Year of Study" = c(m1_y, m2_y, m3_y, m4_y),
-                           "Benefit.of.Visual.Learning" = c(m1_V, m2_V, m3_V, m4_V),
-                           "Benefit.of.Hands.On.Learning" = c(m1_H, m2_H, m3_H, m4_H),
-                           "Benefits.of.Auditory.Learning" = c(m1_A, m2_A, m3_A, m4_A),
-                   "Preferred.Lecture.Format.Effectiveness" = c(m1_E, m2_E, m3_E, m4_E),
-                   "Total.Commute.Time..Minutes." = c(m1_T, m2_T, m3_T, m4_T))
+summary_table = data.frame(check.names = FALSE, "Year of Study" = c(m1_y, m2_y, m3_y, m4_y),
+                           "Benefit of Visual Learning" = c(m1_V, m2_V, m3_V, m4_V),
+                           "Benefit of Hands On Learning" = c(m1_H, m2_H, m3_H, m4_H),
+                           "Benefits of Auditory Learning" = c(m1_A, m2_A, m3_A, m4_A),
+                   "Preferred Lecture Format Effectiveness" = c(m1_E, m2_E, m3_E, m4_E),
+                   "Total Commute Time (Minutes)" = c(m1_T, m2_T, m3_T, m4_T))
 
 kable(t(summary_table), 
       col.names = c("Mean", "Median", "SD", "IQR"), 
@@ -95,11 +97,11 @@ quite large.
 ```{r}
 #| echo: false
 
-datawizard::data_tabulate(df, c("Preferred.Deliverly.Format", "Longer.Shorter.Commute.Time.Effect.on.Preferred.Lecture.Format")) |> print_md()
+datawizard::data_tabulate(df, c("Preferred Deliverly Format", "Longer/Shorter Commute Time Effect on Preferred Lecture Format")) |> print_md()
 
-delF_dist = table(df$Preferred.Deliverly.Format)
+delF_dist = table(df$`Preferred Deliverly Format`)
 
-ctime_dist = table(df$Longer.Shorter.Commute.Time.Effect.on.Preferred.Lecture.Format)
+ctime_dist = table(df$`Longer/Shorter Commute Time Effect on Preferred Lecture Format`)
 
 
 delF_percent = prop.table(delF_dist) * 100
@@ -138,7 +140,7 @@ library(ggplot2)
 library(scales)
 
 # Import the CSV file
-data <- read.csv("Survey_Data_Set.csv")
+data <- read_xlsx("Survey Data Set.xlsx") |> rename_with(trimws)
 
 # Check the column names
 names(data)
@@ -147,8 +149,8 @@ names(data)
 data <- data %>%
   mutate(
     CommuteGroup = case_when(
-      Total.Commute.Time..Minutes. > 40 ~ "Longer Commute",
-      Total.Commute.Time..Minutes. < 40 ~ "Shorter Commute",
+        `Total Commute Time (Minutes)` > 40 ~ "Longer Commute",
+        `Total Commute Time (Minutes)` < 40 ~ "Shorter Commute",
       TRUE ~ NA_character_
     )
   )
@@ -157,9 +159,9 @@ data <- data %>%
 proportions <- data %>%
   filter(
     !is.na(CommuteGroup),
-    !is.na(Preferred.Deliverly.Format)
+    !is.na(`Preferred Deliverly Format`)
   ) %>%
-  count(CommuteGroup, Preferred.Deliverly.Format) %>%
+  count(CommuteGroup, `Preferred Deliverly Format`) %>%
   group_by(CommuteGroup) %>%
   mutate(Proportion = n / sum(n)) %>%
   ungroup()
@@ -170,7 +172,7 @@ print(proportions)
 # Graph 1: Longer commutes
 plot_longer <- ggplot(
   filter(proportions, CommuteGroup == "Longer Commute"),
-  aes(x = Preferred.Deliverly.Format, y = Proportion)
+  aes(x = `Preferred Deliverly Format`, y = Proportion)
 ) +
   geom_col(fill = "steelblue") +
   labs(
@@ -189,7 +191,7 @@ print(plot_longer)
 # Graph 2: Shorter commutes
 plot_shorter <- ggplot(
   filter(proportions, CommuteGroup == "Shorter Commute"),
-  aes(x = Preferred.Deliverly.Format, y = Proportion)
+  aes(x = `Preferred Deliverly Format`, y = Proportion)
 ) +
   geom_col(fill = "darkorange") +
   labs(
@@ -222,19 +224,19 @@ shorter (total commute time < Median) both prefer In-person lectures.
 
 #dependent = lecture format, Indep= learning styles
 #Visual learning Scatter plot
-ggplot(df, aes(x = Benefit.of.Visual.Learning, y = Preferred.Deliverly.Format)) +
+ggplot(df, aes(x = `Benefit of Visual Learning`, y = `Preferred Deliverly Format`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   ggtitle("Scatterplot")
 
 #Hands on learning scatter plot
-ggplot(df, aes(x = Benefit.of.Hands.On.Learning, y = Preferred.Deliverly.Format)) +
+ggplot(df, aes(x = `Benefit of Hands On Learning`, y = `Preferred Deliverly Format`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   ggtitle("Scatterplot")
 
 #Auditory learning scatter plot
-ggplot(df, aes(x = Benefits.of.Auditory.Learning, y = Preferred.Deliverly.Format)) +
+ggplot(df, aes(x = `Benefits of Auditory Learning`, y = `Preferred Deliverly Format`)) +
   geom_point() +
   geom_smooth(method = "lm") +
   ggtitle("Scatterplot")
@@ -254,19 +256,19 @@ is non-numerical.
 library(tidyverse)
 library(performance)
 
-df <- read.csv("Survey_Data_Set.csv")
+df <- read_xlsx("Survey Data Set.xlsx") |> rename_with(trimws)
 
 df <- df %>%
   mutate(
-    Benefit.of.Visual.Learning =
-      as.numeric(as.character(Benefit.of.Visual.Learning)),
-    Preferred.Deliverly.Format =
-      as.factor(Preferred.Deliverly.Format)
+    `Benefit of Visual Learning` =
+      as.numeric(as.character(`Benefit of Visual Learning`)),
+    `Preferred Deliverly Format` =
+      as.factor(`Preferred Deliverly Format`)
   )
 
 # Fit the linear regression model
 model <- lm(
-  Benefit.of.Visual.Learning ~ Preferred.Deliverly.Format,
+  `Benefit of Visual Learning` ~ `Preferred Deliverly Format`,
   data = df
 )
 
@@ -283,23 +285,26 @@ assumptions.
 
 
 ```{r}
+#| fig.width: 9
+#| fig.height: 6
+#| dpi: 300
 library(tidyverse)
 library(performance)
 
-df <- read.csv("Survey_Data_Set.csv")
+df <- read_xlsx("Survey Data Set.xlsx") |> rename_with(trimws)
 
 
 df <- df %>%
   mutate(
-    Benefit.of.Hands.On.Learning =
-      as.numeric(as.character(Benefit.of.Hands.On.Learning)),
-    Preferred.Deliverly.Format =
-      as.factor(Preferred.Deliverly.Format)
+    `Benefit of Hands On Learning` =
+      as.numeric(as.character(`Benefit of Hands On Learning`)),
+    `Preferred Deliverly Format` =
+      as.factor(`Preferred Deliverly Format`)
   )
 
 # Fit the linear regression model
 model <- lm(
-  Benefit.of.Hands.On.Learning ~ Preferred.Deliverly.Format,
+  `Benefit of Hands On Learning` ~ `Preferred Deliverly Format`,
   data = df
 )
 
@@ -314,23 +319,26 @@ Based on the results the linear regression model does not violate any of the
 assumptions.  However, we noticed some outliers in the normality of residuals.
 
 ```{r}
+#| fig.width: 9
+#| fig.height: 6
+#| dpi: 300
 library(tidyverse)
 library(performance)
 
-df <- read.csv("Survey_Data_Set.csv")
+df <- read_xlsx("Survey Data Set.xlsx") |> rename_with(trimws)
 
 
 df <- df %>%
   mutate(
-    Benefits.of.Auditory.Learning =
-      as.numeric(as.character(Benefits.of.Auditory.Learning)),
-    Preferred.Deliverly.Format =
-      as.factor(Preferred.Deliverly.Format)
+    `Benefits of Auditory Learning` =
+      as.numeric(as.character(`Benefits of Auditory Learning`)),
+    `Preferred Deliverly Format` =
+      as.factor(`Preferred Deliverly Format`)
   )
 
 # Fit the linear regression model
 model <- lm(
-  Benefits.of.Auditory.Learning ~ Preferred.Deliverly.Format,
+  `Benefits of Auditory Learning` ~ `Preferred Deliverly Format`,
   data = df
 )
 
@@ -349,12 +357,12 @@ completely flat and there seems to be outliers in the normality of residuals.
 ```{r}
 library(tidyverse)
 
-survey <- read.csv("Survey_Data_Set.csv")
+survey <- read_xlsx("Survey Data Set.xlsx") |> rename_with(trimws)
 
 # Run a one-way ANOVA
 anova_effectiveness <- aov(
-  Preferred.Lecture.Format.Effectiveness ~
-    Preferred.Deliverly.Format,
+  `Preferred Lecture Format Effectiveness` ~
+    `Preferred Deliverly Format`,
   data = survey
 )
 
@@ -367,9 +375,10 @@ Alternative (Ha: p < 0.05): At least one groups mean effectiveness differs
 
 Since P > 0.05 we fail to reject the Null Hypothesis.
 
+# Appendix
 
 ```{r}
-
+# Anna: just put your R codes here?
 ```
 
 
