@@ -1,12 +1,21 @@
 ---
-title: "STA304_survey"
+title: "Exploratory Data Analysis"
+group: "Ctrl+Alt+Stat"
 author: "Rasha, Jannah, Faridah & Michelle"
 date: "2026-10-22"
-output: html_document
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+
+knitr::kable(head(df))
+
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE)
+
 ```
 
 ## Computing Summary Statistics
@@ -83,7 +92,7 @@ quite large.
 
  **qualitative variable**
 
-`````{r}
+```{r}
 #| echo: false
 
 datawizard::data_tabulate(df, c("Preferred.Deliverly.Format", "Longer.Shorter.Commute.Time.Effect.on.Preferred.Lecture.Format")) |> print_md()
@@ -268,6 +277,11 @@ summary(model)
 performance::check_model(model)
 ```
 
+**Discussion on first Model assumptions**
+Based on the results the linear regression model does not violate any of the
+assumptions. 
+
+
 ```{r}
 library(tidyverse)
 library(performance)
@@ -295,7 +309,9 @@ summary(model)
 # Check model assumptions
 performance::check_model(model)
 ```
-
+**Discussion on Second Model assumptions**
+Based on the results the linear regression model does not violate any of the
+assumptions.  However, we noticed some outliers in the normality of residuals.
 
 ```{r}
 library(tidyverse)
@@ -324,39 +340,39 @@ summary(model)
 # Check model assumptions
 performance::check_model(model)
 ```
+**Discussion on the third model assumption**
+Based on the results the linear regression model does not violate any of the
+assumptions. However, we noticed that the homogeneity of the variance line is not 
+completely flat and there seems to be outliers in the normality of residuals. 
 
 **Anova Table**
 ```{r}
 library(tidyverse)
 
-anova_data <- df %>%
-  filter(
-    !is.na(Benefit.of.Visual.Learning),
-    !is.na(Preferred.Deliverly.Format)
-  ) %>%
-  mutate(
-    Preferred.Deliverly.Format =
-      factor(Preferred.Deliverly.Format)
-  )
+survey <- read.csv("Survey_Data_Set.csv")
 
-
-table(anova_data$Preferred.Deliverly.Format)
-
-# Calculate the average score for each lecture format
-anova_data %>%
-  group_by(Preferred.Deliverly.Format) %>%
-  summarise(
-    Sample_Size = n(),
-    Mean_Score = mean(Benefit.of.Visual.Learning),
-    SD = sd(Benefit.of.Visual.Learning)
-  )
-
-# Conduct one-way ANOVA
-anova_model <- aov(
-  Benefit.of.Visual.Learning ~ Preferred.Deliverly.Format,
-  data = anova_data
+# Run a one-way ANOVA
+anova_effectiveness <- aov(
+  Preferred.Lecture.Format.Effectiveness ~
+    Preferred.Deliverly.Format,
+  data = survey
 )
 
-# Display ANOVA results
-summary(anova_model)
+# Display the ANOVA results
+summary(anova_effectiveness)
 ```
+**Discussion on the Anova Table**
+Null Hypothesis (Ho: p >= 0.05): The mean effectiveness is equal across all preferred delivery format groups.
+Alternative (Ha: p < 0.05): At least one groups mean effectiveness differs
+
+Since P > 0.05 we fail to reject the Null Hypothesis.
+
+
+```{r}
+
+```
+
+
+
+
+
