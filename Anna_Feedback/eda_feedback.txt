@@ -1,0 +1,58 @@
+STA304 Exploratory Data Analysis Feedback
+
+Disclaimer: in the process of constructing feedback, I recorded my audio and got AI to rephrase my feedback in a concise, clear manner so that I can mark faster + you get more detailed feedback. I did not run any of the assignments through AI.
+
+Digits in tables
+
+You use too many digits in your tables. In Table 1, no one needs to know that the mean for year of study is 3.336842. Rounding to 3.34, or even 3.3, is enough. The same applies to the standard deviations in that table and to the digits in Tables 3 and 4.
+
+Unformatted output
+
+Under "Discussion for the Qualitative Analysis," you print the header names and show the 7 x 4 tibble as raw R output. Format it as a table, the same way you formatted Tables 1, 2, 3, and 4. The knitr::kable() function turns a tibble into a table in one line, and kableExtra or gt can polish it further. The same criticism applies where you show the linear regression results as pure R output. For those, parameters::model_parameters() from the easystats universe gives a clean coefficient table that you can pass to kable().
+
+Rendering of "Discussion based on graph"
+
+The "Discussion based on graph" heading does not render properly. Use an appropriate header so it displays as a heading.
+
+Test that does not appear in the report
+
+The passage under that heading is odd. It says that after doing a comparison of proportions test, longer and shorter commute groups both prefer in-person lectures. You discuss this before showing any comparison of proportions, and I could not find the test in your code. The report also gives no test statistic or p-value for it. It is inappropriate to say you did a test that you did not do. If the test is somewhere in the code, its output needs to appear in the report.
+
+Plot choice
+
+The three "scatterplots" you generated (Preferred Delivery Format against Benefit of Visual Learning, Benefit of Hands on Learning, and Benefit of Auditory Learning) are not scatterplots. A scatterplot is for a continuous variable against a continuous variable. My Hypothesis Testing & Statistical Tests Review document (https://annahuynhly.github.io/pages/teaching/STA304/Review.pdf) says that boxplots are the appropriate plot for a continuous variable against a categorical one.
+
+Assumption check plots
+
+Your model assumption check plots are far too compressed. You can make them larger with chunk options in your .Rmd file, for example {r, fig.width=10, fig.height=8, out.width="100%"}, and adjust the values until the panels are readable.
+
+LaTeX notation
+
+The purpose of using LaTeX, quarto or R Markdown is that it handles both code and math well. Write $H_{0} : p \geq 0.05$ instead of something like "Ho: p >= 0.05".
+
+Regression results and choice of model
+
+You make several linear regression plots but only comment on the assumption results, not on what the models found. For example, a claim of no effect between benefit of visual learning and preferred delivery format should come with the model results that support it.
+
+On closer inspection, you are better off running an ANOVA than a classical linear regression. You fit lm() with Benefit of Visual Learning as the response and Preferred Delivery Format as a factor. The lm() function is better suited to a quantitative variable against a quantitative variable. ANOVA and t-tests can be written as linear models, but people usually think of linear regression as quantitative against quantitative, so running an ANOVA makes it clearer to your audience what you are doing. I have the same criticism of the rest of your models.
+
+An aside
+
+I am actually surprised that most students prefer the in-person format.
+
+Grade breakdown
+
+Graphs / Tables (0.4 / 0.5)
+At least 2 plots or tables that are representative of the statistical test (0.10 / 0.2). I deducted 0.1 because the three plots of delivery format against a benefit variable are labelled scatterplots, but one variable is categorical, so boxplots are the appropriate plot.
+
+Checking Model Assumptions (0.35 / 0.4)
+A graph showcasing whether the homogeneity of variances and normality of residuals assumptions hold (0.25 / 0.3). I deducted 0.05 because the assumption check plots are compressed and hard to read.
+
+Computing Statistical Tests (0.15 / 0.4)
+Appropriate test or model computed and reported (0.10 / 0.25). I deducted 0.15 because the report cites a comparison of proportions test that does not appear in the code or output, and because lm() is used with a categorical predictor where ANOVA is the clearer and more appropriate choice.
+Directional conclusions for significant effects (0.05 / 0.15). I deducted 0.1 because the regression results are not interpreted, only the assumption checks.
+
+Formatting & Submission (0.15 / 0.2)
+LaTeX, easystats package, code in the appendix (0.05 / 0.1). I deducted 0.05 because raw R output, including the tibble and the regression results, is pasted into the report instead of formatted tables.
+
+Total (1.55 / 2)
